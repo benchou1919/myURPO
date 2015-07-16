@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html ng-app="urpoAPP">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>Search</title>
+		<link rel="stylesheet" type="text/css" href="search.css" />
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="angular.min.js"></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/ng-csv/0.3.3/ng-csv.js'></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.min.js"></script>
+	</head>
+	<body ng-controller="searchController">
+		<div>
+			<span>
+				<input type="button" value="全部選取" id="selectAllBtn" ng-click="selectAll()" />
+				<input type="button" value="全部取消" id="unselectAllBtn" ng-click="unselectAll()" />
+				<input type="button" value="匯出" id="csvBtn" ng-csv='getData()' csv-header='getHeader()' charset='utf-8' add-bom='true'/>
+			</span>
+			<br />
+			<hr />
+			<table>
+				<tr>
+					<th>選取</th>
+					<th ng-repeat="y in header"><button class='btn btn-sm btn-default' style='border: 0;' ng-click="sort($index)"><span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span> </button> {{y}} </th>
+
+    				
+    				
+  				</tr>
+		  		<tr ng-repeat="x in objects | orderBy: order">
+		  			<td ng-if="x.select"><input type="checkbox" checked ng-click="unselect(x)"/></td>
+		  			<td ng-if="!x.select"><input type="checkbox" unchecked ng-click="select(x)"/></td>
+		  			<td>{{ x.state }}</td>
+		  			<td style="color: purple">{{ x.name }}</td>
+		  			<td>{{ x.area }}</td>
+		  			<td>{{ x.school }}</td>
+		  			<td>{{ x.PM }}</td>
+		  			<td>{{ x.start }}</td>
+		  			<td>{{ x.end }}</td>
+		  		</tr>
+			</table>
+			<ol>
+				<p>Debug</p>
+				<li ng-repeat="x in objects | orderBy: order">{{ x.select }}</li>
+			</ol>
+		</div>
+		<script src="search.js"></script>
+	</body>
+</html>
