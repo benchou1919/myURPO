@@ -1,85 +1,100 @@
 angular.module('urpoAPP', ['ngSanitize', 'ngCsv']).controller('searchController', function($scope) {
-	$scope.objects = [
-        {select: false, state:'1', name:'beach', area: 'Taiwan', school: 'NTU', PM: 'Brian', start: '7/3', end: '8/8'},
-        {select: true, state:'3', name:'Muffin', area: 'Taiwan', school: 'NTU', PM: 'Brian', start: '7/3', end: '8/8'},
-        {select: true, state:'7', name:'big ben', area: 'Taiwan', school: 'NCKU', PM: 'Brian', start: '7/3', end: '8/8'},
-        {select: true, state:'1', name:'Zebra', area: 'USA', school: 'UCLA', PM: 'Brian.H', start: '7/3', end: '8/8'},
-        {select: false, state:'3', name:'flower2', area: 'Taiwan', school: 'NTU', PM: 'Brian', start: '7/3', end: '8/8'},
-        {select: true, state:'5', name:'WaterColor', area: 'Taiwan', school: 'NCTU', PM: 'Ken', start: '7/7', end: '8/8'},
-        {select: true, state:'1', name:'forest2', area: 'Japan', school: 'Tokyo', PM: 'Brian', start: '7/3', end: '8/8'},
-        {select: true, state:'4', name:'love_heart', area: 'Taiwan', school: 'NTU', PM: 'Brian', start: '7/3', end: '8/8'},
-        {select: true, state:'2', name:'ico', area: 'Taiwan', school: 'NCCU', PM: 'Brian', start: '7/3', end: '8/8'},
-        {select: true, state:'1', name:'bootstrap', area: 'China', school: 'NTHU', PM: 'Brian', start: '7/3', end: '8/8'}
-    ];
+	
 
+    $scope.Data = GET_PROJECTLIST();
+    $scope.OriginalData = GET_PROJECTLIST();
+    for (var i = 0; i < $scope.Data.length; i ++) {
+        $scope.Data[i].select = false;
+    }
 
+    $scope.myHide = function (index) {
+        var len = $scope.getHeader1().length;
+        if(index == len ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     $scope.selectAll = function() {
-    	for (var i = 0; i < $scope.objects.length; i++) {
-    		if ($scope.objects[i].select == 0) console.log((i+1) + " change to true");
-    		$scope.objects[i].select = true;
+    	for (var i = 0; i < $scope.Data.length; i++) {
+    		if ($scope.Data[i].select == 0) console.log((i+1) + " change to true");
+    		$scope.Data[i].select = true;
     	}
     }
+
     $scope.unselectAll = function() {
-    	for (var i = 0; i < $scope.objects.length; i++) {
-    		if ($scope.objects[i].select == 1) console.log((i+1) + " change to false");
-    		$scope.objects[i].select = false;
+    	for (var i = 0; i < $scope.Data.length; i++) {
+    		if ($scope.Data[i].select == 1) console.log((i+1) + " change to false");
+    		$scope.Data[i].select = false;
     	}
     }
 
-    $scope.select = function(x) {
-    	
-        console.log(x.name);
-        for (var i = 0; i < $scope.objects.length; i ++) {
-            if ($scope.objects[i].name == x.name) {
-                $scope.objects[i].select = true;
+    
+
+    $scope.select1 = function(x) {
+        
+        console.log(x.Project_Name);
+        for (var i = 0; i < $scope.Data.length; i ++) {
+            if ($scope.Data[i].Project_Name == x.Project_Name) {
+                $scope.Data[i].select = true;
                 break;
             }
         }
     }
-    $scope.unselect = function(x) {
-    	
-        for (var i = 0; i < $scope.objects.length; i ++) {
-            if ($scope.objects[i].name == x.name) {
-                $scope.objects[i].select = false;
+
+    
+
+    $scope.unselect1 = function(x) {
+        
+        for (var i = 0; i < $scope.Data.length; i ++) {
+            if ($scope.Data[i].Project_Name == x.Project_Name) {
+                $scope.Data[i].select = false;
                 break;
             }
         }
-    	
+        
 
     }
 
-    /**
-     * Will there be more headers?
-     */
-     
+    
 
-    $scope.order = "state";
+    $scope.order = "id";
+    var list = ["id", "Category", "Dept", "Project_Name", "Estimated_Start_Date", "Estimated_End_Date", "Region", "Institution", "Project_Agreement_Status", "Project_Owners", "Principal_Investigators"];
+    var glyphicon_status = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     $scope.sort = function(index) {
         console.log('sort');
-        if(index == 0) {
-            $scope.order = "state";
-        } else if (index == 1) {
-            $scope.order = "name";
-        } else if (index == 2) {
-            $scope.order = "area";
-        } else if (index == 3) {
-            $scope.order = "school";
-        } else if (index == 4) {
-            $scope.order = "PM";
-        } else if (index == 5) {
-            $scope.order = "start";
-        } else if (index == 6) {
-            $scope.order = "end";
+        for (var i = 0; i < glyphicon_status.length; i ++) {
+            glyphicon_status[i] = 0;
         }
+        if($scope.order == list[index]) {
+            glyphicon_status[index] = 1;
+            $scope.order = "-" + $scope.order;
+        } else {
+            glyphicon_status[index] = 0;
+            $scope.order = list[index]; 
+        }
+
     };
 
+    $scope.glyphicon_hide = function(index) {
+        return glyphicon_status[index];
+    }
+    
+
     $scope.getHeader = function() {
-        return ["狀態", "專案名稱", "區域", "學校", "負責人", "開始時間", "結束時間"];
+        return Object.keys($scope.OriginalData[0]);
+    }
+
+    $scope.getHeader1 = function() {
+        return ["id", "Category", "Department", "Project Name", "Start Date", "End Date", "Region", "Institution", "Project Agreement Status", "Project Owners", "Principal Investigators"];
+        //return Object.keys($scope.OriginalData[0]);
     }
 
     $scope.header = $scope.getHeader();
+    $scope.header1 = $scope.getHeader1();
+
 
     $scope.getData = function() {
         var data = [];
@@ -92,7 +107,27 @@ angular.module('urpoAPP', ['ngSanitize', 'ngCsv']).controller('searchController'
         return data;
     }
 
+    $scope.getData1 = function() {
+        var data = [];
+        var tmp = $scope.Data;
+        for (var i = 0; i < tmp.length; i ++) {
+            
+            if(tmp[i].select == true) {
+                data.push($scope.OriginalData[i]);    
+            }
+        }
 
+        return data;
+    }
 
+    $scope.getOwner = function(obj) {
+        var a = [];
+        for(var i = 0; i < obj.length; i ++) {
+            a.push(obj[i].Name);
+        }
+        return a;
+    }
+
+     $scope.getInvestigator = $scope.getOwner;
 
 });

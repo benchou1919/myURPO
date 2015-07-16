@@ -11,39 +11,62 @@
 		<script type="text/javascript" src="angular.min.js"></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/ng-csv/0.3.3/ng-csv.js'></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular-sanitize.min.js"></script>
+		<script src='urpo_tempDB.js'></script>
+		<script src='urpo_tempServer.js'></script>
 	</head>
 	<body ng-controller="searchController">
 		<div>
 			<span>
 				<input type="button" value="全部選取" id="selectAllBtn" ng-click="selectAll()" />
 				<input type="button" value="全部取消" id="unselectAllBtn" ng-click="unselectAll()" />
-				<input type="button" value="匯出" id="csvBtn" ng-csv='getData()' csv-header='getHeader()' charset='utf-8' add-bom='true'/>
+				<input type="button" value="匯出" id="csvBtn" ng-csv='getData1()' csv-header='getHeader()' charset='utf-8' add-bom='true'/>
 			</span>
 			<br />
 			<hr />
+			
 			<table>
 				<tr>
 					<th>選取</th>
-					<th ng-repeat="y in header"><button class='btn btn-sm btn-default' style='border: 0;' ng-click="sort($index)"><span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span> </button> {{y}} </th>
+					<th ng-repeat="y in header1" ng-hide="myHide($index)">
+						<button class='btn btn-sm btn-default' style='border: 0;' ng-click="sort($index)" ng-hide="glyphicon_hide($index)">
+							<span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span> 
+						</button>
+						<button class='btn btn-sm btn-default' style='border: 0;' ng-click="sort($index)" ng-hide="!glyphicon_hide($index)">
+							<span class="glyphicon glyphicon-triangle-top" aria-hidden="true"></span> 
+						</button> 
+						{{y}} 
+					</th>
 
     				
     				
   				</tr>
-		  		<tr ng-repeat="x in objects | orderBy: order">
-		  			<td ng-if="x.select"><input type="checkbox" checked ng-click="unselect(x)"/></td>
-		  			<td ng-if="!x.select"><input type="checkbox" unchecked ng-click="select(x)"/></td>
-		  			<td>{{ x.state }}</td>
-		  			<td style="color: purple">{{ x.name }}</td>
-		  			<td>{{ x.area }}</td>
-		  			<td>{{ x.school }}</td>
-		  			<td>{{ x.PM }}</td>
-		  			<td>{{ x.start }}</td>
-		  			<td>{{ x.end }}</td>
+		  		<tr ng-repeat="x in Data | orderBy: order">
+		  			<td ng-if="x.select"><input type="checkbox" checked ng-click="unselect1(x)"/></td>
+		  			<td ng-if="!x.select"><input type="checkbox" unchecked ng-click="select1(x)"/></td>
+		  			<!--<td ng-repeat="y in x" ng-hide="myHide($index)"> {{y}}  </td> -->
+
+		  			<td> {{x.id}} </td>
+		  			<td> {{x.Category}} </td>
+		  			<td> {{x.Dept}} </td>
+		  			<td> {{x.Project_Name}} </td>
+		  			<td> {{x.Estimated_Start_Date}} </td>
+		  			<td> {{x.Estimated_End_Date}} </td>
+		  			<td> {{x.Region}} </td>
+		  			<td> {{x.Institution}} </td>
+
+		  			<td> {{x.Project_Agreement_Status}} </td>
+		  			<td> <span ng-repeat="x in getOwner(x.Project_Owners)"> {{x}}<br> </span> </td>
+		  			<td> <span ng-repeat="x in getInvestigator(x.Principal_Investigators)"> {{x}} <br> </span> </td>
+		  			
 		  		</tr>
 			</table>
+
+
+
 			<ol>
 				<p>Debug</p>
-				<li ng-repeat="x in objects | orderBy: order">{{ x.select }}</li>
+				<li ng-repeat="x in Data"> {{x.select}} </li>
+				
 			</ol>
 		</div>
 		<script src="search.js"></script>
