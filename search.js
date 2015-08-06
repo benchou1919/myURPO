@@ -1,8 +1,9 @@
+
 angular.module('urpoAPP', ['ngSanitize', 'ngCsv']).controller('searchController', function($scope) {
 	
 
     $scope.Data = GET_PROJECTLIST();
-    $scope.OriginalData = GET_PROJECTLIST();
+    
     for (var i = 0; i < $scope.Data.length; i ++) {
         $scope.Data[i].select = false;
     }
@@ -36,7 +37,7 @@ angular.module('urpoAPP', ['ngSanitize', 'ngCsv']).controller('searchController'
         
         console.log(x.Project_Name);
         for (var i = 0; i < $scope.Data.length; i ++) {
-            if ($scope.Data[i].Project_Name == x.Project_Name) {
+            if ($scope.Data[i].id == x.id) {
                 $scope.Data[i].select = true;
                 break;
             }
@@ -84,11 +85,14 @@ angular.module('urpoAPP', ['ngSanitize', 'ngCsv']).controller('searchController'
     
 
     $scope.getHeader = function() {
-        return Object.keys($scope.OriginalData[0]);
+        var a = Object.keys($scope.Data[0]);
+        a.pop();    // $$hash ?
+        a.pop();    // select
+        return a;
     }
 
     $scope.getHeader1 = function() {
-        return ["id", "Category", "Department", "Project Name", "Start Date", "End Date", "Region", "Institution", "Project Agreement Status", "Project Owners", "Principal Investigators"];
+        return ["id", "Project Name", "Project Owners", "Category", "Department", "Principal Investigators", "Region", "Institution", "Start Date", "End Date"];
         //return Object.keys($scope.OriginalData[0]);
     }
 
@@ -96,16 +100,57 @@ angular.module('urpoAPP', ['ngSanitize', 'ngCsv']).controller('searchController'
     $scope.header1 = $scope.getHeader1();
 
 
-    $scope.getData = function() {
-        var data = [];
-        var tmp = $scope.objects;
-        for(var i = 0; i < tmp.length; i ++) {
-            if(tmp[i].select == true) {
-                data.push({a: tmp[i].state, b: tmp[i].name, c: tmp[i].area, d: tmp[i].school, e: tmp[i].PM, f: tmp[i].start, g: tmp[i].end});    
+    var DataProcessing = function(data) {
+        // Project_Owners
+        var tmp = ["", "", "", ""];
+        for (var i = 0; i < data['Project_Owners'].length; i ++) {
+            
+            console.log(data['Project_Owners'][i].Name);
+            tmp[0] += ("Name:" + data['Project_Owners'][i].Name + " ");
+            tmp[0] += ("EmpID:" + data['Project_Owners'][i].EmpID + "\n");
+        }
+        data['Project_Owners'] = tmp[0];
+        // Principal_Investigators
+        for(var i = 0; i < data['Principal_Investigators'].length; i ++) {
+            console.log(data['Principal_Investigators'][i].Name);
+            tmp[1] += ("Name:" + data['Principal_Investigators'][i].Name + " ");
+            tmp[1] += ("Email:" + data['Principal_Investigators'][i].Email + " ");
+            tmp[1] += ("Website:" + data['Principal_Investigators'][i].Website + "\n");
+        }
+        data['Principal_Investigators'] = tmp[1];
+        // Milestone
+        for(var i = 0; i < data['Milestone'].length; i ++) {
+            console.log(data['Milestone'][i].Name);
+            var M = data['Milestone'][i];
+            tmp[2] += ("Name:" + M.name + " ");
+            tmp[2] += ("start time:" + M.start_time + " ");
+            tmp[2] += ("end time:" + M.end_time + " ");
+            tmp[2] += ("status:" + M.status + " ");
+            tmp[2] += ("description:" + M.description + " ");
+            tmp[2] += ("files:\n")
+            for(var j = 0; j < M.file.length; j ++) {
+                tmp[2] += ("File Name: " + M.file[j].file_name + " File Path: " + M.file[j].file_path + "\n");
             }
         }
+        data['Milestone'] = tmp[2];
+
+        // Edit State
+        for(var i = 0; i < data['edit_state'].length; i ++) {
+            var E = data['edit_state'][i];
+            tmp[3] += ("state" + (i + 1) + ": ");
+            tmp[3] += ("add or edit: " + E.add_or_edit + " ");
+            tmp[3] += ("edit person: " + E.edit_person + " ");
+            tmp[3] += ("edit column: " + E.edit_column + "\n");
+        }
+        data['edit_state'] = tmp[3];
+
+
+        data['file_system'] = [];
+        delete data['select']; // no need to be in csv file
+
         return data;
     }
+
 
     $scope.getData1 = function() {
         var data = [];
@@ -113,9 +158,14 @@ angular.module('urpoAPP', ['ngSanitize', 'ngCsv']).controller('searchController'
         for (var i = 0; i < tmp.length; i ++) {
             
             if(tmp[i].select == true) {
-                data.push($scope.OriginalData[i]);    
+                var tmpData = {}
+                $.extend(tmpData, $scope.Data[i]);
+                tmpData = DataProcessing(tmpData);
+                
+                data.push(tmpData);    
             }
         }
+
 
         return data;
     }
@@ -128,6 +178,61 @@ angular.module('urpoAPP', ['ngSanitize', 'ngCsv']).controller('searchController'
         return a;
     }
 
-     $scope.getInvestigator = $scope.getOwner;
+    var getID = function(x, y) {
+        for (var i = 0; i < x.length; i ++) {
+            if (x[i].Name == y) {
+                return x[i].EmpID; 
+            }
+        }
+    }
+
+    var getWebsite = function(x, y) {
+        for (var i = 0; i < x.length; i ++) {
+            if (x[i].Name == y) {
+                return x[i].Website; 
+            }
+        }
+    }
+
+    var getEmail = function(x, y) {
+        for (var i = 0; i < x.length; i ++) {
+            if (x[i].Name == y) {
+                return x[i].Email; 
+            }
+        }
+    }
+
+
+    $scope.getInvestigator = $scope.getOwner;
+
+    $scope.transferOwnerData = function(x, y) {
+        $scope.ModalName = y;
+        $scope.Information = "";
+        $scope.Email = "";
+        $scope.Website = "";
+
+        if (getID(x, y) != "") {
+            $scope.Information = "EMPID: \n" + getID(x, y) + "\n";    
+        }
+        
+    }
+
+    $scope.transferInvestigatorData = function(x, y) {
+        $scope.ModalName = y;
+        var tmp = "";
+        $scope.Information = "";
+        $scope.Email = "";
+        $scope.Website = "";
+
+        if (getEmail(x, y) != "") {
+            $scope.Email = ("Email: " + getEmail(x, y));    
+        }
+        if (getWebsite(x, y) != "") {
+            $scope.Website += ("Website: " + getWebsite(x, y));    
+        }
+        
+        
+    }
+
 
 });

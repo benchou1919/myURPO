@@ -2,40 +2,39 @@ body {
     font-size: 27px;
     font-family: Constantia, Cambria;
     text-align: center;
+    background-color: #DDD;
 }
 
 table {
 	margin-left: auto;
 	margin-right: auto;
-	border: 1px solid black;
+	border: 2px solid black;
     border-collapse: collapse;
+    width: 80%;
+
+
 }
 th {
 	font: 26px Cambria, Constantia;
-	border: 1px solid black;
+	border: 2px solid black;
     border-collapse: collapse;
     padding: 2px;
     text-align: center;
+
 }
 td {
 	font: 24px Constantia, Cambria;
-	border: 1px solid black;
+	border: 2px solid black;
     border-collapse: collapse;
     padding-top: 5px;
     padding-bottom: 5px;
     padding-left: 4px;
     padding-right: 4px;
     text-align: center;
+    background-color: #EEE;
 }
 
-ol {
-    text-align: left;
-}
 
-p {
-    color: red;
-    text-align: left;
-}
 
 #selectAllBtn {
     font: 20px Courier, skia, Constantia, Cambria;
